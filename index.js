@@ -38,19 +38,10 @@ app.get("/api/shorturl/:shortUrl", async (req, res) => {
 
 app.post("/api/shorturl", async (req, res, next) => {
   const originalUrl = req.body.url;
-
-  if (!originalUrl.includes("https://"))
-    return res.send({ error: "invalid url" });
-
   const url =
     req.body.url.split("https://")[1] || req.body.url.split("http://")[1];
 
-  dns.lookup(url, async (err, value) => {
-    if (err) {
-      res.send({ error: "invalid url" });
-      return;
-    }
-
+  if (checkIfUrlIsValid(originalUrl)) {
     let foundUrl = await UrlModel.findOne({ original_url: originalUrl })
       .then((url) => url)
       .catch((err) => console.log(err));
@@ -79,8 +70,11 @@ app.post("/api/shorturl", async (req, res, next) => {
         short_url: NewShortenUrl.short_url,
       });
     }
-  });
+  } else {
+    res.send({ error: "invalid url" });
+  }
 });
+// });
 
 // Your first API endpoint
 app.get("/api/hello", function (req, res) {
@@ -90,3 +84,22 @@ app.get("/api/hello", function (req, res) {
 app.listen(port, function () {
   console.log(`Listening on port ${port}`);
 });
+
+const checkIfUrlIsValid = (url) => {
+  let isValid = true;
+  const httpRegex =
+    /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+
+  if (!url.match(httpRegex)) {
+    console.log("hello");
+    isValid = false;
+  } else {
+    dns.lookup(url, async (err, value) => {
+      if (err) {
+        isValid = false;
+      }
+    });
+  }
+
+  return isValid;
+};
