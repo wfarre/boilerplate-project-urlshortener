@@ -38,13 +38,9 @@ app.get("/api/shorturl/:shortUrl", async (req, res) => {
 
 app.post("/api/shorturl", async (req, res, next) => {
   const originalUrl = req.body.url;
-  const url =
-    req.body.url.split("https://")[1] || req.body.url.split("http://")[1];
 
   if (checkIfUrlIsValid(originalUrl)) {
-    let foundUrl = await UrlModel.findOne({ original_url: originalUrl })
-      .then((url) => url)
-      .catch((err) => console.log(err));
+    let foundUrl = await UrlModel.findOne({ original_url: originalUrl });
 
     if (foundUrl)
       res.send({
@@ -53,10 +49,9 @@ app.post("/api/shorturl", async (req, res, next) => {
       });
     else {
       let shortenUrl = 1;
-
-      shortenUrl = await UrlModel.estimatedDocumentCount()
-        .then((docCount) => docCount + 1)
-        .catch((err) => console.log(err));
+      shortenUrl = await UrlModel.estimatedDocumentCount({}).then(
+        (result) => result + 1
+      );
 
       const NewShortenUrl = new UrlModel({
         original_url: originalUrl,
@@ -74,7 +69,6 @@ app.post("/api/shorturl", async (req, res, next) => {
     res.send({ error: "invalid url" });
   }
 });
-// });
 
 // Your first API endpoint
 app.get("/api/hello", function (req, res) {
