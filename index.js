@@ -81,14 +81,13 @@ app.listen(port, function () {
 
 const checkIfUrlIsValid = (url) => {
   let isValid = true;
-  const httpRegex =
-    /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+  const httpRegex = /^(https?:\/\/)[^\s/$.?#].[^\s]*$/;
 
-  if (!url.match(httpRegex)) {
-    console.log("hello");
+  if (!httpRegex.test(url)) {
     isValid = false;
   } else {
-    dns.lookup(url, async (err, value) => {
+    const formattedUrl = url.split("http//:")[1] || url.split("https://")[1];
+    dns.lookup(formattedUrl, async (err, value) => {
       if (err) {
         isValid = false;
       }
