@@ -44,14 +44,14 @@ app.post("/api/shorturl", async (req, res, next) => {
     !originalUrl.includes("http://") &&
     originalUrl.split("")[originalUrl.length] === "/"
   )
-    return res.send({ error: "Invalid url" });
+    return res.send({ error: "invalid url" });
 
   const url =
     req.body.url.split("https://")[1] || req.body.url.split("http://")[1];
 
   dns.lookup(url, async (err, value) => {
     if (err) {
-      res.send({ error: "Invalid url" });
+      res.send({ error: "invalid url" });
       return;
     }
 
