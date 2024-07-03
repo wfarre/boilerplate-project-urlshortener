@@ -29,10 +29,6 @@ app.get("/", function (req, res) {
   res.sendFile(process.cwd() + "/views/index.html");
 });
 
-app.get("/api/shorturl", (req, res) => {
-  res.send("hello");
-});
-
 app.get("/api/shorturl/:shortUrl", async (req, res) => {
   const shortUrl = req.params.shortUrl;
   const foundUrl = await UrlModel.findOne({ short_url: shortUrl });
@@ -40,11 +36,14 @@ app.get("/api/shorturl/:shortUrl", async (req, res) => {
   else res.send({ error: "Couldn't find the URL" });
 });
 
-app.post("/api/shorturl", async (req, res) => {
-  const url = req.body.url;
+app.post("/api/shorturl", async (req, res, next) => {
+  const originalUrl = req.body.url;
 
-  if (!url.includes("https://") || !url.includes("http://"))
+  if (!originalUrl.includes("https://") && !originalUrl.includes("http://"))
     return res.send({ error: "Invalid url" });
+
+  const url =
+    req.body.url.split("https://")[1] || req.body.url.split("http://")[1];
 
   dns.lookup(url, async (err, value) => {
     if (err) {
@@ -52,7 +51,7 @@ app.post("/api/shorturl", async (req, res) => {
       return;
     }
 
-    let foundUrl = await UrlModel.findOne({ original_url: url })
+    let foundUrl = await UrlModel.findOne({ original_url: originalUrl })
       .then((url) => url)
       .catch((err) => console.log(err));
 
@@ -66,18 +65,20 @@ app.post("/api/shorturl", async (req, res) => {
 
       shortenUrl = await UrlModel.estimatedDocumentCount()
         .then((docCount) => docCount + 1)
-        .catch((err) => console.log(error));
+        .catch((err) => console.log(err));
 
       const NewShortenUrl = new UrlModel({
-        original_url: url,
+        original_url: originalUrl,
         short_url: shortenUrl,
       });
 
       NewShortenUrl.save();
+
       res.send({
         original_url: NewShortenUrl.original_url,
         short_url: NewShortenUrl.short_url,
       });
+      next();
     }
   });
 });
