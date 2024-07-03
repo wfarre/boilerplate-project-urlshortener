@@ -33,7 +33,7 @@ app.get("/api/shorturl/:shortUrl", async (req, res) => {
   const shortUrl = req.params.shortUrl;
   const foundUrl = await UrlModel.findOne({ short_url: shortUrl });
   if (foundUrl) res.redirect(foundUrl.original_url);
-  else res.send({ error: "Couldn't find the URL" });
+  else res.send({ error: "invalid url" });
 });
 
 app.post("/api/shorturl", async (req, res, next) => {
