@@ -52,7 +52,11 @@ app.post("/api/shorturl", async (req, res) => {
       .then((url) => url)
       .catch((err) => console.log(err));
 
-    if (foundUrl) res.send(foundUrl);
+    if (foundUrl)
+      res.send({
+        original_url: foundUrl.original_url,
+        short_url: foundUrl.short_url,
+      });
     else {
       let shortenUrl = 1;
 
@@ -66,7 +70,10 @@ app.post("/api/shorturl", async (req, res) => {
       });
 
       NewShortenUrl.save();
-      res.send(NewShortenUrl);
+      res.send({
+        original_url: NewShortenUrl.original_url,
+        short_url: NewShortenUrl.short_url,
+      });
     }
   });
 });
