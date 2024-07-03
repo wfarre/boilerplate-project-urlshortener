@@ -39,7 +39,11 @@ app.get("/api/shorturl/:shortUrl", async (req, res) => {
 app.post("/api/shorturl", async (req, res, next) => {
   const originalUrl = req.body.url;
 
-  if (!originalUrl.includes("https://") && !originalUrl.includes("http://"))
+  if (
+    !originalUrl.includes("https://") &&
+    !originalUrl.includes("http://") &&
+    originalUrl.split("")[originalUrl.length] === "/"
+  )
     return res.send({ error: "Invalid url" });
 
   const url =
