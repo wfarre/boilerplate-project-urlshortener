@@ -78,7 +78,6 @@ app.post("/api/shorturl", async (req, res, next) => {
         original_url: NewShortenUrl.original_url,
         short_url: NewShortenUrl.short_url,
       });
-      next();
     }
   });
 });
