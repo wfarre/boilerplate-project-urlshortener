@@ -36,12 +36,16 @@ app.get("/api/shorturl", (req, res) => {
 app.get("/api/shorturl/:shortUrl", async (req, res) => {
   const shortUrl = req.params.shortUrl;
   const foundUrl = await UrlModel.findOne({ short_url: shortUrl });
-  if (foundUrl) res.redirect("https://" + foundUrl.original_url);
+  if (foundUrl) res.redirect(foundUrl.original_url);
   else res.send({ error: "Couldn't find the URL" });
 });
 
 app.post("/api/shorturl", async (req, res) => {
   const url = req.body.url;
+
+  if (!url.includes("https://") || !url.includes("http://"))
+    return res.send({ error: "Invalid url" });
+
   dns.lookup(url, async (err, value) => {
     if (err) {
       res.send({ error: "Invalid url" });
